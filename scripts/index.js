@@ -20,7 +20,7 @@ function createCard(card) {
 
 function renderCards() {
    initialCards.forEach(card => {
-      let newCard = createCard(card);
+      const newCard = createCard(card);
       placesList.append(newCard);
    });
 }
