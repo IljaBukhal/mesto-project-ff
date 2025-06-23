@@ -21,7 +21,7 @@ export function addListenersCloseMdl(mdl) {
       closeMdl(mdl);
    });
    mdl.addEventListener('mousedown', (evt) => {
-      if (evt.target.classList.contains('popup')) {
+      if (evt.target === evt.currentTarget) {
          closeMdl(mdl);
       }
    });

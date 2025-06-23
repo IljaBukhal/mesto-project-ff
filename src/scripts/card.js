@@ -3,27 +3,16 @@ export function deleteBtnHandler (evt) {
 }
 
 export function likeBtnHandler (evt) {
-   evt.currentTarget.classList.toggle('card__like-button_is-active');
-}
-
-export function imgClickHandler(evt) {
-   const mdlImage = document.querySelector('.popup_type_image');
-   const popupImage = mdlImage.querySelector('.popup__image');
-   const popupCaption = mdlImage.querySelector('.popup__caption');
-   const selectedCard = evt.target.closest('.card');
-   const caption = selectedCard.querySelector('.card__description').textContent;
-   popupImage.alt = caption;
-   popupImage.src = evt.target.src;
-   popupCaption.textContent = caption;
+   evt.currentTarget.classList
+   .toggle('card__like-button_is-active');
 }
 
 export function createCard(card, template, callbacks) {
-   const [
+   const {
       deleteBtnHandler,
       likeBtnHandler,
-      imgClickHandler,
-      openMdl
-   ] = callbacks;
+      imgClickHandler
+   } = callbacks;
    const cardElement = template.cloneNode(true);
    const cardImage = cardElement.querySelector('.card__image');
    const cardTitle = cardElement.querySelector('.card__title');
@@ -35,11 +24,9 @@ export function createCard(card, template, callbacks) {
    cardTitle.textContent = card.name;
    deleteButton.addEventListener('click', deleteBtnHandler);
    likeButton.addEventListener('click', likeBtnHandler);
-   cardImage.addEventListener('click', (evt => {
-      const mdlImage = document.querySelector('.popup_type_image');
-      imgClickHandler(evt);
-      openMdl(mdlImage);
-   }));
+   cardImage.addEventListener('click', () => {
+      imgClickHandler(card);
+   });
    return cardElement;
 }
 
