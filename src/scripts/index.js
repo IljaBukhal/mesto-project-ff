@@ -1,5 +1,6 @@
 import '../pages/index.css';
 import { initialCards } from './cards.js';
+import { enableValidation, clearValidation } from './validation.js'
 import { 
    deleteBtnHandler,
    likeBtnHandler,
@@ -43,6 +44,15 @@ const linkInput = formNewPlace.querySelector('.popup__input_type_url');
 const templateCard = document.getElementById('card-template').content;
 const placesList = document.querySelector('.places__list');
 
+const validationConfig = {
+   formSelector: '.popup__form',
+   inputSelector: '.popup__input',
+   submitButtonSelector: '.popup__button',
+   inactiveButtonClass: 'popup__button_disabled',
+   inputErrorClass: 'popup__input_type_error',
+   errorClass: 'popup__error_visible'
+};
+
 function imgClickHandler({ name, link }) {
    popupImage.alt = name;
    popupCaption.textContent = name;
@@ -53,11 +63,13 @@ function imgClickHandler({ name, link }) {
 profileEditBtn.addEventListener('click', () => {
    nameInput.value = profileTitle.textContent;
    jobInput.value = profileDescription.textContent;
+   clearValidation(formEditProfile, validationConfig);
    openMdl(mdlProfileEdit);
 });
 
 addCardBtn.addEventListener('click', () => {
    formNewPlace.reset();
+   clearValidation(formNewPlace, validationConfig);
    openMdl(mdlAddCard);
 });
 
@@ -86,4 +98,5 @@ formNewPlace.addEventListener('submit', (evt) => {
    closeMdl(openedMdl);
 });
 
+enableValidation(validationConfig);
 renderCards(initialCards, placesList, templateCard, callbacksCreateCards);
