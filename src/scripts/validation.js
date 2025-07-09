@@ -12,14 +12,14 @@ function showInputError (
       errorElement.textContent = errorMessage;
    }
    errorElement.classList.add(validationConfig.errorClass);
-};
+}
 
 function hideInputError(formElement, inputElement, validationConfig) {
    const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
    inputElement.classList.remove(validationConfig.inputErrorClass);
    errorElement.classList.remove(validationConfig.errorClass);
    errorElement.textContent = '';
-};
+}
 
 function checkInputValidity (formElement, inputElement, validationConfig) {
    if (!inputElement.validity.valid) {
@@ -32,8 +32,7 @@ function checkInputValidity (formElement, inputElement, validationConfig) {
    } else {
       hideInputError(formElement, inputElement, validationConfig);
    }
-};
-
+}
 
 function hasInvalidInput(inputList) {
    return inputList.some((inputElement) => !inputElement.validity.valid);

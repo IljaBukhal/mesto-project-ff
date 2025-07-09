@@ -1,0 +1,16 @@
+.popup_type_card-delete .popup__content {
+   min-height: min-content;
+   padding-block-end: 36px;
+}
+
+.popup_type_card-delete 
+.popup__content 
+.popup__title {
+   line-height: 100%;
+}
+
+.popup_type_card-delete 
+.popup__content 
+.popup__button {
+   margin-block-start: 38px;
+}
