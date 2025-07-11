@@ -1,50 +1,55 @@
 export function createCard(
    card,
+   myId,
    template,
    identifiers,
    callbacks
 ) {
    const {
       deleteBtnHandler,
-      likeBtnHandler,
-      imgClickHandler
+      imgClickHandler,
+      toggleLike
    } = callbacks;
    const cardElement = template.cloneNode(true);
-   const cardBody = cardElement.querySelector('.card');
    const cardImage = cardElement.querySelector('.card__image');
    const cardTitle = cardElement.querySelector('.card__title');
    const deleteButton = cardElement.querySelector('.card__delete-button');
    const likeButton = cardElement.querySelector('.card__like-button');
    const likeCounter = cardElement.querySelector('.card__like-counter');
+   const cardIsLikedModifier = 'card__like-button_is-active';
+   
+   function checkLikeFromMe() {
+      return card.likes.map((like) => like._id).some((id) => id === myId)
+   }
 
-   cardBody.setAttribute('data-card-id', card['_id']);
-   likeCounter.textContent = card.likes.length;
+   function renderLikes() {
+      likeButton.classList.toggle(
+         cardIsLikedModifier,
+         checkLikeFromMe()
+      );
+      likeCounter.textContent = card.likes.length;
+   };
+
    cardImage.setAttribute('src', card.link);
    cardImage.setAttribute('alt', card.name);
    cardTitle.textContent = card.name;
-   deleteButton.addEventListener('click', deleteBtnHandler);
-   likeButton.addEventListener('click', likeBtnHandler);
+   deleteButton.addEventListener('click', (evt) => {
+      identifiers.idCardDel = card._id;
+      deleteBtnHandler(evt);
+   });
+   likeButton.addEventListener('click', () => {
+      toggleLike(card._id, checkLikeFromMe())
+         .then((newCard) => {
+            card = newCard;
+            renderLikes();
+         })
+         .catch(console.log);
+   });
    cardImage.addEventListener('click', () => {
       imgClickHandler(card);
    });
-   const checkLikeFromMe = card.likes
-      .some((like) => like['_id'] === identifiers.myId);
-   if (checkLikeFromMe) likeButton.classList.add('card__like-button_is-active');
+
+   renderLikes();
    if (card.owner['_id'] !== identifiers.myId) deleteButton.remove();
    return cardElement;
-}
-
-export function renderCards(
-   cards,
-   cardList,
-   template,
-   identifiers,
-   callbacks
-) {
-   const cardElements = Array.from(cardList.children);
-   cardElements.forEach((cardElement) => cardElement.remove());
-   cards.forEach(card => {
-      const newCard = createCard(card, template, identifiers, callbacks);
-      cardList.append(newCard);
-   });
 }

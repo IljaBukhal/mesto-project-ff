@@ -53,8 +53,8 @@ export function clearValidation(formElement, validationConfig) {
    const buttonElement = formElement.querySelector(validationConfig.submitButtonSelector);
    inputList.forEach((inputElement) => {
       hideInputError(formElement, inputElement, validationConfig);
-      toggleButtonState(inputList, buttonElement, validationConfig);
    });
+   toggleButtonState(inputList, buttonElement, validationConfig);
 }
 
 function setEventListeners(formElement, validationConfig) {

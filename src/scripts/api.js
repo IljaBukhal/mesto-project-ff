@@ -6,18 +6,19 @@ const config = {
   }
 }
 
+function getResponseData(res) {
+   if (!res.ok) {
+      return Promise.reject(`Ошибка: ${res.status}`); 
+   }
+   return res.json();
+}
+
 export function getCards() {
    return fetch(`${config.baseUrl}/cards`, {
       headers: {
          authorization: config.headers.authorization
       }
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
-         }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   }).then(getResponseData);
 }
 
 export function getUserInfo(userId) {
@@ -25,13 +26,7 @@ export function getUserInfo(userId) {
       headers: {
          authorization: config.headers.authorization
       }
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
-         }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   }).then(getResponseData);
 }
 
 export function editProfile(name, about) {
@@ -45,13 +40,7 @@ export function editProfile(name, about) {
          name: name,
          about: about
       })
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
-         }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   }).then(getResponseData);
 }
 
 export function addNewCard(name, link) {
@@ -65,13 +54,7 @@ export function addNewCard(name, link) {
          name: name,
          link: link
       })
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
-         }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   }).then(getResponseData);
 }
 
 export function deleteCard(id) {
@@ -81,13 +64,7 @@ export function deleteCard(id) {
          authorization: config.headers.authorization,
          'Content-Type': config.headers["Content-Type"]
       }
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
-         }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   }).then(getResponseData);
 }
 
 export function putLike(id) {
@@ -97,13 +74,7 @@ export function putLike(id) {
          authorization: config.headers.authorization,
          'Content-Type': config.headers["Content-Type"]
       }
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
-         }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   }).then(getResponseData);
 }
 
 export function delLike(id) {
@@ -113,13 +84,21 @@ export function delLike(id) {
          authorization: config.headers.authorization,
          'Content-Type': config.headers["Content-Type"]
       }
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
+   }).then(getResponseData);
+}
+
+export function toggleLike(id, likeStatus) {
+   const fetchOptions = {
+      method: likeStatus ? 'DELETE' : 'PUT',
+      headers: {
+         authorization: config.headers.authorization,
+         'Content-Type': config.headers["Content-Type"]
          }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   };
+   return fetch(
+      `${config.baseUrl}/cards/likes/${id}`,
+      fetchOptions
+   ).then(getResponseData);
 }
 
 export function changeAvatar(link) {
@@ -132,11 +111,5 @@ export function changeAvatar(link) {
       body: JSON.stringify({
          avatar: link
       })
-   })
-      .then(res => {
-         if (res.ok) {
-            return res.json();
-         }
-         return Promise.reject(`Ошибка: ${res.status}`);
-      });
+   }).then(getResponseData);
 }

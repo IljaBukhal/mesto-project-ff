@@ -1,5 +1,5 @@
 import '../pages/index.css';
-import { renderCards } from './card.js';
+import { createCard } from './card.js';
 import {
    enableValidation,
    clearValidation
@@ -15,8 +15,7 @@ import {
    editProfile,
    addNewCard,
    deleteCard,
-   putLike,
-   delLike,
+   toggleLike,
    changeAvatar
 } from './api.js';
 
@@ -74,61 +73,17 @@ function imgClickHandler({ name, link }) {
    openMdl(mdlImage);
 }
 
+let deletedCard;
 function deleteBtnHandler(evt) {
-   identifiers.idCardDel = evt.target.closest('.card')
-      .getAttribute('data-card-id');
+   deletedCard = evt.target.closest('.card');
    openMdl(mdlDelCard);
-}
-
-function likeBtnHandler(evt) {
-   evt.target.classList.toggle('card__like-button_is-active');
-   const cardId = evt.target.closest('.card').getAttribute('data-card-id');
-   getCards()
-      .then((cards) => {
-         const likedCard = Array.from(cards).find((card) => card['_id'] === cardId);
-         const checkLikeFromMe = likedCard.likes
-            .some((like) => like['_id'] === identifiers.myId);
-         if (!checkLikeFromMe) {
-            putLike(likedCard['_id'])
-               .finally(getAndRenderCards);
-         } else {
-            delLike(likedCard['_id'])
-               .finally(getAndRenderCards);
-         }
-      })
-      .catch(console.log);
 }
 
 const callbacksCreateCards = {
    deleteBtnHandler,
-   likeBtnHandler,
-   imgClickHandler
+   imgClickHandler,
+   toggleLike
 };
-
-function getAndRenderCards() {
-   getCards()
-      .then((cards) => {
-         renderCards(
-            cards,
-            placesList,
-            templateCard,
-            identifiers,
-            callbacksCreateCards
-         );
-      })
-      .catch(console.log);
-}
-
-getUserInfo('me')
-   .then((userInfo) => {
-      profileAvatar.style.backgroundImage = `url('${userInfo.avatar}')`;
-      profileTitle.textContent = userInfo.name;
-      profileDescription.textContent = userInfo.about;
-      identifiers.myId = userInfo['_id'];
-   })
-   .catch(console.log)
-   .finally(getAndRenderCards);
-
 
 profileEditBtn.addEventListener('click', () => {
    nameInput.value = profileTitle.textContent;
@@ -151,11 +106,11 @@ addCardBtn.addEventListener('click', () => {
 
 cardDelConfirmationBtn.addEventListener('click', () => {
    deleteCard(identifiers.idCardDel)
-      .catch(console.log)
-      .finally(() => {
-         getAndRenderCards();
+      .then(() => {
+         deletedCard.remove(); 
          closeMdl(mdlDelCard);
-      });
+      })
+      .catch(console.log);
 });
 
 modals.forEach((mdl) => {
@@ -165,7 +120,6 @@ modals.forEach((mdl) => {
 
 formEditProfile.addEventListener('submit', (evt) => {
    evt.preventDefault();
-   const openedMdl = document.querySelector('.popup_is-opened');
    const name = nameInput.value;
    const job = jobInput.value;
    const formButton = formEditProfile.querySelector('.popup__button');
@@ -174,24 +128,34 @@ formEditProfile.addEventListener('submit', (evt) => {
       .then((profileInfo) => {
          profileTitle.textContent = profileInfo.name;
          profileDescription.textContent = profileInfo.about;
-         closeMdl(openedMdl);
-         formButton.textContent = 'Сохранить';
+         closeMdl(mdlProfileEdit);
       })
-      .catch(console.log);
+      .catch(console.log)
+      .finally(() => {
+         formButton.textContent = 'Сохранить';
+      });
 });
 
 formNewPlace.addEventListener('submit', (evt) => {
    evt.preventDefault();
-   const openedMdl = document.querySelector('.popup_is-opened');
    const place = placeNameInput.value;
    const link = linkInput.value;
    const formButton = formNewPlace.querySelector('.popup__button');
    formButton.textContent = 'Сохранение...';
    addNewCard(place, link)
+      .then((card) => {
+         const newCard = createCard(
+            card,
+            identifiers.myId,
+            templateCard,
+            identifiers,
+            callbacksCreateCards
+         );
+         placesList.prepend(newCard);
+         closeMdl(mdlAddCard);
+      })
       .catch(console.log)
       .finally(() => {
-         getAndRenderCards();
-         closeMdl(openedMdl);
          formButton.textContent = 'Сохранить';
       });
 });
@@ -201,8 +165,49 @@ formChangeAvatar.addEventListener('submit', (evt) => {
    const formButton = formChangeAvatar.querySelector('.popup__button');
    formButton.textContent = 'Сохранение...';
    changeAvatar(avatarLinkInput.value)
+      .then(() => {
+         profileAvatar.style = `background-image: url(${avatarLinkInput.value})`;
+         closeMdl(mdlChangeAvatar)
+      })
       .catch(console.log)
-      .finally(() => location.reload());
+      .finally(() => {
+         formButton.textContent = 'Сохранить';
+      });
 });
 
+function renderCards(
+   cards,
+   cardList,
+   template,
+   identifiers,
+   callbacks
+) {
+   const cardElements = Array.from(cardList.children);
+   cardElements.forEach((cardElement) => cardElement.remove());
+   cards.forEach(card => {
+      const newCard = createCard(
+         card,
+         identifiers.myId,
+         template,
+         identifiers,
+         callbacks
+      );
+      cardList.append(newCard);
+   });
+}
+
 enableValidation(validationConfig);
+Promise.all([getUserInfo('me'), getCards()])
+   .then(([userInfo, cards]) => {
+      profileAvatar.style.backgroundImage = `url('${userInfo.avatar}')`;
+      profileTitle.textContent = userInfo.name;
+      profileDescription.textContent = userInfo.about;
+      identifiers.myId = userInfo._id;
+      renderCards(
+         cards,
+         placesList,
+         templateCard,
+         identifiers,
+         callbacksCreateCards
+      );
+   });
