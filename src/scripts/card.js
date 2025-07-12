@@ -17,9 +17,10 @@ export function createCard(
    const likeButton = cardElement.querySelector('.card__like-button');
    const likeCounter = cardElement.querySelector('.card__like-counter');
    const cardIsLikedModifier = 'card__like-button_is-active';
+   let currentCard = card;
    
    function checkLikeFromMe() {
-      return card.likes.map((like) => like._id).some((id) => id === myId)
+      return currentCard.likes.some((like) => like._id === myId);
    }
 
    function renderLikes() {
@@ -27,29 +28,29 @@ export function createCard(
          cardIsLikedModifier,
          checkLikeFromMe()
       );
-      likeCounter.textContent = card.likes.length;
+      likeCounter.textContent = currentCard.likes.length;
    };
 
-   cardImage.setAttribute('src', card.link);
-   cardImage.setAttribute('alt', card.name);
-   cardTitle.textContent = card.name;
+   cardImage.setAttribute('src', currentCard.link);
+   cardImage.setAttribute('alt', currentCard.name);
+   cardTitle.textContent = currentCard.name;
    deleteButton.addEventListener('click', (evt) => {
-      identifiers.idCardDel = card._id;
+      identifiers.idCardDel = currentCard._id;
       deleteBtnHandler(evt);
    });
    likeButton.addEventListener('click', () => {
-      toggleLike(card._id, checkLikeFromMe())
+      toggleLike(currentCard._id, checkLikeFromMe())
          .then((newCard) => {
-            card = newCard;
+            currentCard = newCard;
             renderLikes();
          })
          .catch(console.log);
    });
    cardImage.addEventListener('click', () => {
-      imgClickHandler(card);
+      imgClickHandler(currentCard);
    });
 
    renderLikes();
-   if (card.owner['_id'] !== identifiers.myId) deleteButton.remove();
+   if (currentCard.owner['_id'] !== myId) deleteButton.remove();
    return cardElement;
 }

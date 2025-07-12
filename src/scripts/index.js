@@ -118,12 +118,16 @@ modals.forEach((mdl) => {
    mdl.classList.add('popup_is-animated');
 });
 
+function toggleTextButton(buttonElement, rtnOriginalValue) {
+   buttonElement.textContent = rtnOriginalValue ? 'Сохранить' : 'Сохранение...';
+}
+
 formEditProfile.addEventListener('submit', (evt) => {
    evt.preventDefault();
    const name = nameInput.value;
    const job = jobInput.value;
    const formButton = formEditProfile.querySelector('.popup__button');
-   formButton.textContent = 'Сохранение...';
+   toggleTextButton(formButton, false);
    editProfile(name, job)
       .then((profileInfo) => {
          profileTitle.textContent = profileInfo.name;
@@ -132,7 +136,7 @@ formEditProfile.addEventListener('submit', (evt) => {
       })
       .catch(console.log)
       .finally(() => {
-         formButton.textContent = 'Сохранить';
+         toggleTextButton(formButton, true);
       });
 });
 
@@ -141,7 +145,7 @@ formNewPlace.addEventListener('submit', (evt) => {
    const place = placeNameInput.value;
    const link = linkInput.value;
    const formButton = formNewPlace.querySelector('.popup__button');
-   formButton.textContent = 'Сохранение...';
+   toggleTextButton(formButton, false);
    addNewCard(place, link)
       .then((card) => {
          const newCard = createCard(
@@ -156,22 +160,22 @@ formNewPlace.addEventListener('submit', (evt) => {
       })
       .catch(console.log)
       .finally(() => {
-         formButton.textContent = 'Сохранить';
+         toggleTextButton(formButton, true);
       });
 });
 
 formChangeAvatar.addEventListener('submit', (evt) => {
    evt.preventDefault();
    const formButton = formChangeAvatar.querySelector('.popup__button');
-   formButton.textContent = 'Сохранение...';
+   toggleTextButton(formButton, false);
    changeAvatar(avatarLinkInput.value)
-      .then(() => {
-         profileAvatar.style = `background-image: url(${avatarLinkInput.value})`;
+      .then((userInfo) => {
+         profileAvatar.style = `background-image: url(${userInfo.avatar})`;
          closeMdl(mdlChangeAvatar)
       })
       .catch(console.log)
       .finally(() => {
-         formButton.textContent = 'Сохранить';
+         toggleTextButton(formButton, true);
       });
 });
 
@@ -209,5 +213,6 @@ Promise.all([getUserInfo('me'), getCards()])
          templateCard,
          identifiers,
          callbacksCreateCards
-      );
-   });
+      )
+   })
+   .catch(console.log);
